@@ -13,8 +13,12 @@
     }
   },
   "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --target node && tsc -p tsconfig.json --emitDeclarationOnly",
+    "clean": "rm -rf dist",
+    "build": "bun run clean && bun build src/index.ts --outdir dist --target node && tsc -b tsconfig.json --force",
     "test": "bun test"
   },
   "dependencies": {

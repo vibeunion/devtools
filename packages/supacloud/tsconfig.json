@@ -5,7 +5,7 @@
     "baseUrl": "../..",
     "ignoreDeprecations": "6.0",
     "paths": {
-      "@vibeunion/devtools-protocol": ["packages/protocol/src/index.ts"]
+      "@vibeunion/devtools-protocol": ["packages/protocol/dist/index.d.ts"]
     },
     "declaration": true,
     "emitDeclarationOnly": true,
@@ -16,9 +16,6 @@
     "target": "ES2022",
     "outDir": "dist"
   },
-  "references": [
-    { "path": "../protocol" }
-  ],
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts"]
 }
