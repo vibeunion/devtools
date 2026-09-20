@@ -21,11 +21,20 @@
       "name": "@vibeunion/devtools-protocol",
       "version": "0.1.0",
     },
+    "packages/supacloud": {
+      "name": "@vibeunion/devtools-supacloud",
+      "version": "0.1.0",
+      "dependencies": {
+        "@vibeunion/devtools-protocol": "workspace:*",
+      },
+    },
   },
   "packages": {
     "@vibeunion/devtools-devframe": ["@vibeunion/devtools-devframe@workspace:packages/devframe"],
 
     "@vibeunion/devtools-protocol": ["@vibeunion/devtools-protocol@workspace:packages/protocol"],
+
+    "@vibeunion/devtools-supacloud": ["@vibeunion/devtools-supacloud@workspace:packages/supacloud"],
 
     "crossws": ["crossws@0.4.12", "https://registry.npmmirror.com/crossws/-/crossws-0.4.12.tgz", { "peerDependencies": { "srvx": ">=0.11.5" }, "optionalPeers": ["srvx"] }, "sha512-aypfsr6t0uNvkqaZc6zvBfXzC6pLI0/sIulpkV6RwCVtZqG5ebBzv4weImKK0VNCj91Wl9F5j7p5WU4MNrybng=="],
 

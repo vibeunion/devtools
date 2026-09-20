@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "baseUrl": "../..",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@vibeunion/devtools-protocol": ["packages/protocol/src/index.ts"]
+    },
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "outDir": "dist"
+  },
+  "references": [
+    { "path": "../protocol" }
+  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}

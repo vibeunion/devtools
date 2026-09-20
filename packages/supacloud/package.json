@@ -1,0 +1,29 @@
+{
+  "name": "@vibeunion/devtools-supacloud",
+  "version": "0.1.0",
+  "description": "SupaCloud adapter for VibeUnion DevTools",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node && tsc -p tsconfig.json --emitDeclarationOnly",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@vibeunion/devtools-protocol": "workspace:*"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/vibeunion/devtools.git",
+    "directory": "packages/supacloud"
+  }
+}

@@ -2,7 +2,8 @@
   "files": [],
   "references": [
     { "path": "./packages/protocol/tsconfig.json" },
-    { "path": "./packages/devframe/tsconfig.json" }
+    { "path": "./packages/devframe/tsconfig.json" },
+    { "path": "./packages/supacloud/tsconfig.json" }
   ],
   "compilerOptions": {
     "baseUrl": ".",
