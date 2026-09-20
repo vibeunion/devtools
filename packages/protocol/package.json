@@ -1,0 +1,26 @@
+{
+  "name": "@vibeunion/devtools-protocol",
+  "version": "0.1.0",
+  "description": "Shared JSON-safe DevTools protocol for frontend and SupaCloud adapters",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node && tsc -p tsconfig.json --emitDeclarationOnly",
+    "test": "bun test"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/vibeunion/devtools.git",
+    "directory": "packages/protocol"
+  }
+}

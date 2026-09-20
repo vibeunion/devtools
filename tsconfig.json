@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/protocol/tsconfig.json" },
+    { "path": "./packages/devframe/tsconfig.json" }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@vibeunion/devtools-protocol": ["packages/protocol/src/index.ts"]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@vibeunion/devtools-devframe",
+  "version": "0.1.0",
+  "description": "Devframe transport contracts and helpers for VibeUnion DevTools",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target browser && tsc -p tsconfig.json --emitDeclarationOnly",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@vibeunion/devtools-protocol": "workspace:*",
+    "devframe": "1.0.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/vibeunion/devtools.git",
+    "directory": "packages/devframe"
+  }
+}
