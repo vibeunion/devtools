@@ -12,4 +12,21 @@ describe('devframe integration', () => {
       cacheAction: async () => ({ action: 'clear', matched: 0, changed: 0 }),
     })).toBeNull();
   });
+
+  test('requires an explicit development opt-in even with a window', () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'window');
+    Object.defineProperty(globalThis, 'window', { configurable: true, value: {} });
+    try {
+      for (const development of [undefined, false]) {
+        expect(installDevtoolsPageBridge({
+          development,
+          getSnapshot: () => { throw new Error('must not read'); },
+          cacheAction: async () => { throw new Error('must not write'); },
+        })).toBeNull();
+      }
+    } finally {
+      if (original) Object.defineProperty(globalThis, 'window', original);
+      else Reflect.deleteProperty(globalThis, 'window');
+    }
+  });
 });

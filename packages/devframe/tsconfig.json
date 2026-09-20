@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
     "composite": true,
-    "baseUrl": "../..",
-    "ignoreDeprecations": "6.0",
+    "rootDir": "src",
     "paths": {
-      "@vibeunion/devtools-protocol": ["packages/protocol/src/index.ts"]
+      "@vibeunion/devtools-protocol": ["../protocol/src/index.ts"]
     },
     "declaration": true,
     "emitDeclarationOnly": true,
