@@ -1,0 +1,77 @@
+name: Publish packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish for all packages"
+        required: true
+        default: "0.1.0"
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: npm-publish-${{ inputs.version }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install and build
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+
+      - name: Rewrite workspace dependencies for publication
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const packages = ['protocol', 'devframe', 'supacloud'];
+          const versions = new Map();
+          for (const name of packages) {
+            const file = `packages/${name}/package.json`;
+            const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
+            versions.set(pkg.name, pkg.version);
+          }
+          for (const name of packages) {
+            const file = `packages/${name}/package.json`;
+            const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
+            for (const field of ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies']) {
+              for (const [dependency, range] of Object.entries(pkg[field] ?? {})) {
+                if (range === 'workspace:*' && versions.has(dependency)) {
+                  pkg[field][dependency] = `^${versions.get(dependency)}`;
+                }
+              }
+            }
+            fs.writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`);
+          }
+          NODE
+
+      - name: Verify publish archives
+        run: bun run scripts/check-packs.ts
+
+      - name: Publish protocol
+        working-directory: packages/protocol
+        run: npm publish --provenance --access public --workspaces=false
+
+      - name: Publish Devframe
+        working-directory: packages/devframe
+        run: npm publish --provenance --access public --workspaces=false
+
+      - name: Publish SupaCloud adapter
+        working-directory: packages/supacloud
+        run: npm publish --provenance --access public --workspaces=false
