@@ -91,8 +91,48 @@ export type DevtoolsCacheActionResult = {
   changed: number;
 };
 
+export type DevtoolsCacheDiagnostics = {
+  queries: { total: number; fetching: number; stale: number; errors: number };
+  mutations: { total: number; pending: number; paused: number; errors: number };
+};
+
+export type DevtoolsProviderDiagnostic = {
+  name: string;
+  configured: boolean;
+  capabilities: string;
+};
+
+export type DevtoolsQueryDiagnostic = {
+  provider: string;
+  resource: string;
+  operation: string;
+  status: string;
+  retries: number;
+  duration: string;
+  cacheAge: string;
+  invalidation: string;
+};
+
+/**
+ * Svadmin-specific devtools snapshot shape. It extends the shared versioned
+ * snapshot vocabulary while staying JSON-safe and dependency-free so the same
+ * contract can be consumed by frontend adapters and SupaCloud tooling.
+ */
+export type SvadminDevtoolsSnapshot = {
+  version: 1;
+  environment: 'development';
+  route: string;
+  locale: string;
+  theme: string;
+  colorTheme: string;
+  resourceCount: number;
+  providers: DevtoolsProviderDiagnostic[];
+  cache: DevtoolsCacheDiagnostics;
+  queries: DevtoolsQueryDiagnostic[];
+};
+
 const SECRET_KEY =
-  /token|secret|password|credential|authorization|cookie|signed.?url|service.?role|private.?key/i;
+  /token|secret|password|credential|authorization|cookie|signed.?url|service.?role|api.?key|private.?key|jwt/i;
 
 export function redactDevtoolsRecord(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(redactDevtoolsRecord);

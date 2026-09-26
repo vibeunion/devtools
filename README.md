@@ -5,12 +5,31 @@ Shared DevTools infrastructure for Svelte applications and SupaCloud.
 ## Packages
 
 - `@vibeunion/devtools-protocol`: JSON-safe diagnostics, trace metadata,
-  snapshots, redaction, and local cache operation types.
+  snapshots, redaction, cache operation types, and the svadmin snapshot shape.
 - `@vibeunion/devtools-devframe`: Devframe in-page channel helpers for page
-  adapters and panels.
+  adapters and panels. `installPageScriptBridge` shares the transport
+  lifecycle (SSR guard, development opt-in, dispose-on-reinstall, global
+  registration) for adapters that keep their own protocol, channel name, and
+  global key.
+- `@vibeunion/devtools-supacloud`: SupaCloud compiler/task adapters that map
+  SupaCloud payloads into the shared protocol.
 
 The repository owns the shared protocol and transport. Product repositories
 should provide adapters rather than copy the contract or Devframe wiring.
+
+## Consumers
+
+`@vibeunion/devtools-protocol` is the single source of truth for the DevTools
+contract:
+
+- `@svadmin/devtools-contract` re-exports it so the svadmin ecosystem keeps its
+  published entry point without owning a second copy.
+- `@supacloud/devtools-contract` is being folded into the same re-export once the
+  outstanding branch is merged.
+
+Product-specific diagnostics (svadmin provider/resource/route/permission
+inspection, SupaCloud compiler/task mapping) stay in their owning repositories
+and only depend on the shared contract.
 
 ## Development
 
