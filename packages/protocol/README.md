@@ -6,4 +6,5 @@ The package contains no transport, database, logging, or UI dependency. It
 defines trace/correlation metadata, diagnostics, events, snapshots, and
 recursive redaction for credentials and signed URLs. It also defines the
 complete local cache mutation vocabulary, including query and mutation cache
-operations.
+operations, plus the svadmin snapshot/provider/query diagnostic shapes so a
+single contract serves frontend, svadmin, and SupaCloud adapters.
