@@ -44,11 +44,13 @@ bun run build
 
 ## Release
 
-Push a `vX.Y.Z` tag to build and publish all three packages to npm, then create
-a GitHub Release with generated notes. Configure GitHub Actions as a trusted
-publisher for each `@vibeunion` package on npm; the workflow uses npm OIDC and
-does not require an `NPM_TOKEN` secret. The workflow can also be started
-manually with a version number.
+Conventional Commits pushed to `main` open or update a Release Please PR.
+`fix` commits bump the patch version, `feat` commits bump the minor version,
+and `BREAKING CHANGE` bumps the major version. Merging the release PR publishes
+all three packages with the generated version and creates a GitHub Release.
+Configure GitHub Actions as a trusted publisher for each `@vibeunion` package
+on npm; publishing uses OIDC and does not require an `NPM_TOKEN` secret. The
+workflow can also be started manually with a version number for recovery.
 
 Cache mutations are intended for local development tooling. Production
 operations require a separate authorization and audit path.
