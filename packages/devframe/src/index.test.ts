@@ -98,4 +98,46 @@ describe('devframe integration', () => {
       expect('__TEST_DEVTOOLS__' in win).toBe(false);
     });
   });
+
+  test('installs devtools bridge with applyPatch handler and exposes it on bridge', async () => {
+    await new Promise<void>((resolve) => {
+      withFakeWindow(async (win) => {
+        let called = false;
+        const bridge = installDevtoolsPageBridge({
+          development: true,
+          getSnapshot: () => ({ ok: true }),
+          cacheAction: async () => ({ action: 'clear', matched: 1, changed: 1 }),
+          applyPatch: async (patch) => {
+            called = true;
+            return {
+              success: true,
+              patch,
+              summary: `Applied ${patch.action} to ${patch.resource}`,
+              suggestedPatchCode: 'code',
+              agentPrompt: 'prompt',
+            };
+          },
+        });
+
+        expect(bridge).not.toBeNull();
+        expect(win.__VIBEUNION_DEVTOOLS__).toBe(bridge);
+        expect(typeof bridge?.applyPatch).toBe('function');
+
+        const result = await bridge!.applyPatch!({
+          resource: 'posts',
+          action: 'toggleColumnVisibility',
+          column: 'views',
+          value: false,
+        });
+
+        expect(called).toBe(true);
+        expect(result.success).toBe(true);
+        expect(result.summary).toBe('Applied toggleColumnVisibility to posts');
+
+        bridge!.dispose();
+        expect('__VIBEUNION_DEVTOOLS__' in win).toBe(false);
+        resolve();
+      });
+    });
+  });
 });
