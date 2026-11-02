@@ -49,21 +49,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          registry-url: "https://registry.npmjs.org"
+
+      - name: Set up npm trusted publishing
+        run: |
+          npm install --global npm@11.5.1
+          npm --version
 
       - name: Install and build
         run: |
           bun install --frozen-lockfile
           bun run build
-
-      - name: Verify npm publish token
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [[ -z "$NODE_AUTH_TOKEN" ]]; then
-            echo "NPM_TOKEN must be configured as a repository Actions secret" >&2
-            exit 1
-          fi
 
       - name: Rewrite workspace dependencies for publication
         env:
@@ -99,21 +94,15 @@ jobs:
 
       - name: Publish protocol
         working-directory: packages/protocol
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --provenance --access public --workspaces=false
+        run: npm publish --access public --workspaces=false
 
       - name: Publish Devframe
         working-directory: packages/devframe
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --provenance --access public --workspaces=false
+        run: npm publish --access public --workspaces=false
 
       - name: Publish SupaCloud adapter
         working-directory: packages/supacloud
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --provenance --access public --workspaces=false
+        run: npm publish --access public --workspaces=false
 
       - name: Create GitHub release
         env:
