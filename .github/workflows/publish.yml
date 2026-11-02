@@ -18,12 +18,12 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     concurrency:
       group: npm-publish-${{ github.ref }}
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Determine release version
         id: release
@@ -42,17 +42,17 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version: "1.4.2"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7.1.0
         with:
           node-version: "22"
 
       - name: Set up npm trusted publishing
         run: |
-          npm install --global npm@11.5.1
+          npm install --global npm@12.2.1
           npm --version
 
       - name: Install and build
