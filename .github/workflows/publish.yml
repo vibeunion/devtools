@@ -1,26 +1,46 @@
 name: Publish packages
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       version:
         description: "Version to publish for all packages"
         required: true
-        default: "0.1.0"
+        default: "0.1.1"
         type: string
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     concurrency:
-      group: npm-publish-${{ inputs.version }}
+      group: npm-publish-${{ github.ref }}
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
+
+      - name: Determine release version
+        id: release
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            version="$INPUT_VERSION"
+          else
+            version="${REF_NAME#v}"
+          fi
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid release version: $version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -36,7 +56,18 @@ jobs:
           bun install --frozen-lockfile
           bun run build
 
+      - name: Verify npm publish token
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [[ -z "$NODE_AUTH_TOKEN" ]]; then
+            echo "NPM_TOKEN must be configured as a repository Actions secret" >&2
+            exit 1
+          fi
+
       - name: Rewrite workspace dependencies for publication
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
         run: |
           node <<'NODE'
           const fs = require('node:fs');
@@ -45,6 +76,8 @@ jobs:
           for (const name of packages) {
             const file = `packages/${name}/package.json`;
             const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
+            pkg.version = process.env.RELEASE_VERSION;
+            fs.writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`);
             versions.set(pkg.name, pkg.version);
           }
           for (const name of packages) {
@@ -66,12 +99,30 @@ jobs:
 
       - name: Publish protocol
         working-directory: packages/protocol
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public --workspaces=false
 
       - name: Publish Devframe
         working-directory: packages/devframe
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public --workspaces=false
 
       - name: Publish SupaCloud adapter
         working-directory: packages/supacloud
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public --workspaces=false
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          tag="v$RELEASE_VERSION"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists"
+          else
+            gh release create "$tag" --target "$GITHUB_SHA" --generate-notes
+          fi

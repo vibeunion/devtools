@@ -42,6 +42,13 @@ bun run check
 bun run build
 ```
 
+## Release
+
+Push a `vX.Y.Z` tag to build and publish all three packages to npm, then create
+a GitHub Release with generated notes. The repository must have an Actions
+secret named `NPM_TOKEN` with permission to publish the `@vibeunion` packages.
+The workflow can also be started manually with a version number.
+
 Cache mutations are intended for local development tooling. Production
 operations require a separate authorization and audit path.
 
