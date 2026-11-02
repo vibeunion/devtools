@@ -45,13 +45,78 @@ export type DevtoolsEvent =
   | {
       type: 'diagnostic.emitted';
       diagnostic: DevtoolsDiagnostic;
-    };
+    }
+  | (DevtoolsTraceContext & {
+      type: 'vibe.inspect';
+      component: string;
+      resource?: string;
+      field?: string;
+      prompt?: string;
+    })
+  | (DevtoolsTraceContext & {
+      type: 'vibe.patch';
+      resource: string;
+      action: ResourcePatchAction;
+      field?: string;
+      column?: string;
+      value?: unknown;
+      prompt?: string;
+    });
 
 export type DevtoolsSnapshot = DevtoolsTraceContext & {
   version: 1;
   source: DevtoolsSource;
   diagnostics: DevtoolsDiagnostic[];
   events: DevtoolsEvent[];
+};
+
+// ─── Unified Vibe Coding & Self-Healing Contracts ────────────
+
+export type SelfHealingIssueCategory =
+  | 'PERMISSION_DENIED'
+  | 'SCHEMA_MISMATCH'
+  | 'NETWORK_ERROR'
+  | 'RUNTIME_EXCEPTION';
+
+export type SelfHealingIssue = {
+  category: SelfHealingIssueCategory;
+  code: string;
+  message: string;
+  resource?: string;
+  operation?: string;
+  suggestedAction: string;
+  location?: DevtoolsLocation;
+};
+
+export type SelfHealingReport = {
+  hasErrors: boolean;
+  errorCount: number;
+  issues: SelfHealingIssue[];
+  agentPrompt: string;
+};
+
+export type ResourcePatchAction =
+  | 'updateField'
+  | 'toggleColumnVisibility'
+  | 'updateColumnTitle'
+  | 'updatePageSize'
+  | 'reorderColumns';
+
+export type ResourcePatch = {
+  resource: string;
+  action: ResourcePatchAction;
+  field?: string;
+  column?: string;
+  value: unknown;
+  targetComponent?: string;
+};
+
+export type ResourcePatchResult = {
+  success: boolean;
+  patch: ResourcePatch;
+  summary: string;
+  suggestedPatchCode: string;
+  agentPrompt: string;
 };
 
 export type DevtoolsCacheSelector = {

@@ -57,4 +57,36 @@ describe('devtools contract', () => {
       correlationId: 'workflow-1',
     });
   });
+
+  test('supports vibe.inspect and vibe.patch events in devtools snapshot', () => {
+    const snapshot = createDevtoolsSnapshot({
+      source: 'svadmin',
+      requestId: 'req-vibe-1',
+      traceId: 'trace-vibe-1',
+      events: [
+        {
+          type: 'vibe.inspect',
+          traceId: 'trace-vibe-1',
+          component: 'PostsTable',
+          resource: 'posts',
+          field: 'title',
+          prompt: 'Inspect posts.title field',
+        },
+        {
+          type: 'vibe.patch',
+          traceId: 'trace-vibe-1',
+          resource: 'posts',
+          action: 'toggleColumnVisibility',
+          column: 'createdAt',
+          value: false,
+          prompt: 'Hide createdAt column',
+        },
+      ],
+    });
+
+    expect(snapshot.events).toHaveLength(2);
+    expect(snapshot.events[0]?.type).toBe('vibe.inspect');
+    expect(snapshot.events[1]?.type).toBe('vibe.patch');
+    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
+  });
 });

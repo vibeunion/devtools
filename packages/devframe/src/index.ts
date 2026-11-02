@@ -8,6 +8,8 @@ import type {
   DevtoolsCacheActionRequest,
   DevtoolsCacheActionResult,
   DevtoolsCacheSelector,
+  ResourcePatch,
+  ResourcePatchResult,
 } from '@vibeunion/devtools-protocol';
 
 export const DEVTOOLS_CHANNEL = 'vibeunion:devtools';
@@ -20,6 +22,9 @@ export type DevtoolsBridgeProtocol = {
       cacheAction: (
         request: DevtoolsCacheActionRequest,
       ) => Promise<DevtoolsCacheActionResult>;
+      applyPatch: (
+        patch: ResourcePatch,
+      ) => Promise<ResourcePatchResult>;
     };
   };
 };
@@ -31,6 +36,9 @@ export type DevtoolsPageBridge = {
     action: DevtoolsCacheActionRequest['action'],
     selector?: DevtoolsCacheSelector,
   ) => Promise<DevtoolsCacheActionResult>;
+  applyPatch?: (
+    patch: ResourcePatch,
+  ) => Promise<ResourcePatchResult>;
 };
 
 export type PageBridgeOptions = {
@@ -41,6 +49,9 @@ export type PageBridgeOptions = {
   cacheAction: (
     request: DevtoolsCacheActionRequest,
   ) => Promise<DevtoolsCacheActionResult>;
+  applyPatch?: (
+    patch: ResourcePatch,
+  ) => Promise<ResourcePatchResult>;
 };
 
 /**
@@ -145,6 +156,16 @@ export function installPageScriptBridge<
 export function installDevtoolsPageBridge(
   options: PageBridgeOptions,
 ): DevtoolsPageBridge | null {
+  const applyPatchHandler =
+    options.applyPatch ??
+    (async (patch: ResourcePatch): Promise<ResourcePatchResult> => ({
+      success: false,
+      patch,
+      summary: 'Resource patching is not supported by this host.',
+      suggestedPatchCode: '',
+      agentPrompt: '',
+    }));
+
   return installPageScriptBridge<DevtoolsBridgeProtocol, DevtoolsPageBridge>({
     development: options.development,
     channelName: options.channelName ?? DEVTOOLS_CHANNEL,
@@ -152,11 +173,13 @@ export function installDevtoolsPageBridge(
     functions: {
       getSnapshot: { type: 'query', handler: options.getSnapshot },
       cacheAction: { type: 'action', handler: options.cacheAction },
+      applyPatch: { type: 'action', handler: applyPatchHandler },
     },
     buildBridge: ({ dispose }) => ({
       dispose,
       getSnapshot: options.getSnapshot,
       cacheAction: (action, selector) => options.cacheAction({ action, selector }),
+      ...(options.applyPatch ? { applyPatch: options.applyPatch } : {}),
     }),
   });
 }
