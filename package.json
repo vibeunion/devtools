@@ -2,7 +2,7 @@
   "name": "@vibeunion/devtools",
   "private": true,
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Shared DevTools protocol and Devframe integrations for Svelte and SupaCloud",
   "packageManager": "bun@1.4.2",
   "workspaces": [
